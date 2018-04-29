@@ -1,0 +1,13 @@
+.DS_STORE
+*.log
+*.log.*
+
+node_modules
+database
+
+dist
+gm-web
+tests
+coverage
+.idea/
+.vscode/
