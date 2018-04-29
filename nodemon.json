@@ -1,0 +1,13 @@
+{
+  "verbose": false,
+  "watch": [
+    "./"
+  ],
+  "ignore": [
+    "dist",
+    "coverage",
+    "tests",
+    "src",
+    "node_modules/**/node_modules"
+  ]
+}
