@@ -8,7 +8,10 @@ export const COUNTER_DOUBLE_ASYNC = 'COUNTER_DOUBLE_ASYNC'
 // Actions
 // ------------------------------------
 export function increment(value = 1) {
-  return {type: COUNTER_INCREMENT, payload: value}
+  return {
+    type: COUNTER_INCREMENT,
+    payload: value
+  }
 }
 
 /*  This is a thunk, meaning it is a function that immediately
@@ -17,9 +20,10 @@ export function increment(value = 1) {
 
 export const doubleAsync = () => {
   return (dispatch, getState) => {
+
     return new Promise((resolve) => {
       setTimeout(() => {
-        dispatch({type: COUNTER_DOUBLE_ASYNC, payload: getState().counter})
+        dispatch({ type: COUNTER_DOUBLE_ASYNC, payload: getState().counter })
         resolve()
       }, 200)
     })

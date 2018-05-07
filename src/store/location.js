@@ -1,15 +1,15 @@
 // ------------------------------------
 // Constants 常量
 // ------------------------------------
-export const LOCATION_CHANGE = 'LOCATION_CHANGE'
+const LOCATION_CHANGE = 'LOCATION_CHANGE'
 
 // ------------------------------------
 // Actions 行为
 // ------------------------------------
-export function locationChange (location = '/') {
+function locationChange (location = '/') {
   return {
-    type    : LOCATION_CHANGE,
-    payload : location
+    type: LOCATION_CHANGE,
+    payload: location
   }
 }
 
@@ -24,8 +24,8 @@ export const updateLocation = ({ dispatch }) => {
 // ------------------------------------
 // Reducer
 // ------------------------------------
-const initialState = null
-export default function locationReducer (state = initialState, action) {
+const initialState = {}
+export default function (state = initialState, action) {
   return action.type === LOCATION_CHANGE
     ? action.payload
     : state

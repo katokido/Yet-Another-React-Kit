@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import './Zen.scss'
-import Spinner from 'react-spinkit'
+import './Zen.less'
+import { Spin } from 'antd'
 
 export default class Zen extends Component {
 
@@ -9,23 +9,20 @@ export default class Zen extends Component {
     const {
       fetchZen,
       clearZen,
-      zen: {
-        fetching,
-        text
-      }
+      zen = { fetching: false, text: [] }
     } = this.props
 
     return (
       <div>
         <div className='loading'>
-          {fetching
-            ? <Spinner spinnerName='double-bounce'/>
+          {zen.fetching
+            ? <Spin />
             : ''
 }
         </div>
         <div>
           <button className='btn btn-default' onClick={fetchZen}>
-            {fetching
+            {zen.fetching
               ? 'Fetching...'
               : 'Fetch'}
           </button>
@@ -33,7 +30,7 @@ export default class Zen extends Component {
           <button className='btn btn-default' onClick={clearZen}>Clear</button>
         </div>
         <div>
-          {text.map(item => (
+          {zen.text.map(item => (
             <h1 key={item.id}>{item.text}</h1>
           ))}
         </div>
@@ -43,5 +40,7 @@ export default class Zen extends Component {
 }
 
 Zen.propTypes = {
-  zen: PropTypes.object.isRequired
+  zen: PropTypes.object,
+  fetchZen: PropTypes.func,
+  clearZen: PropTypes.func
 }

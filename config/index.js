@@ -1,16 +1,13 @@
 /* eslint key-spacing:0 spaced-comment:0 */
 const path = require('path')
 const debug = require('debug')('app:config-index')
-const argv = require('yargs').argv
+// const argv = require('yargs').argv
 const ip = require('ip')
-const _ = require('lodash')
-
-const globApi = require('../core/globPrduts')
 
 debug('创建默认配置')
 debug('IP：', ip.address())
-debug('PORT：', process.env.PORT || 6060)
-debug('npm_config_host：', process.env.npm_config_host)
+debug('PORT：', process.env.PORT || 3050)
+debug('HOST：', process.env.npm_config_host || '非compile')
 
 // ========================================================
 // global Configuration
@@ -18,9 +15,6 @@ debug('npm_config_host：', process.env.npm_config_host)
 // 全局配置
 // ========================================================
 global.ROOT_PATH = path.resolve(__dirname, '..')
-global.MONGO = path.resolve(__dirname, '..') + '/core/mongo'
-global.REDIS = path.resolve(__dirname, '..') + '/core/redis'
-global.API_USER = path.resolve(__dirname, '..') + '/models/api_user'
 
 // ========================================================
 // Default Configuration
@@ -46,8 +40,8 @@ const config = {
   // package.json 读取config对象里的配置
   // const PORT = process.env.npm_package_config_port
   // ----------------------------------
-  server_host: ip.address(), // use string 'localhost' to prevent exposure on local network
-  server_port: process.env.PORT || 6060,
+  server_host: ip.address(), // ip.address() use string 'localhost' to prevent exposure on local network
+  server_port: process.env.PORT || 3050,
 
   // ----------------------------------
   // Compiler Configuration
@@ -56,15 +50,32 @@ const config = {
   compiler_babel: {
     cacheDirectory: true,
     plugins: [
-      'transform-runtime',
+      ['react-hot-loader/babel'],
+      ['transform-decorators-legacy'],
+      ['syntax-dynamic-import'],
+      ['transform-runtime'],
       [
-        'import', {
+        'import',
+        {
           libraryName: 'antd',
-          style: 'css'
+          'libraryDirectory': 'es',
+          style: true
         }
       ]
     ],
-    presets: ['es2015', 'react', 'stage-0']
+    presets: [
+      [
+        'env',
+        {
+          debug: true,
+          targets: {
+            browsers: ['last 2 versions', 'safari >= 7']
+          }
+        }
+      ],
+      ['react'],
+      ['stage-0']
+    ]
   },
   compiler_devtool: 'source-map',
   compiler_hash_type: 'hash',
@@ -78,83 +89,33 @@ const config = {
     colors: true
   },
   compiler_vendors: [
-    'babel-polyfill',
     'history',
+    'lodash',
+    'antd',
+    'axios',
+    'prop-types',
     'react',
     'react-redux',
-    'react-router',
+    'react-router-dom',
     'redux'
-  ],
-
-  // ----------------------------------
-  // Test Configuration
-  // 测试配置
-  // ----------------------------------
-  coverage_reporters: [
-    {
-      type: 'text-summary'
-    }, {
-      type: 'lcov',
-      dir: 'coverage'
-    }
-  ],
-
-  // ----------------------------------
-  // mongodb
-  // ----------------------------------
-  mongodb: {
-    port: 27017,
-    database: 'news',
-    host: '127.0.0.1',
-    path: 'mongodb://localhost:',
-    user: '',
-    password: '',
-    cookieSecret: 'edward' //Cookie加密 与数据库无关 留用
-  },
-
-  // ----------------------------------
-  // redis
-  // ----------------------------------
-  redis: {
-    port: 6379,
-    host: '127.0.0.1',
-    password: 'porschev',
-    options: {
-      db: 1
-    },
-    cookieSecret: 'edward' //Cookie加密 与数据库无关 留用
-  }
+  ]
 }
 
 // ------------------------------------
 // Environment
 // 环境
 // ------------------------------------
-// N.B.: globals added here must _also_ be added to .eslintrc
+// N.B.: globals added here must _also_ be added to .eslintrc & must to json
 config.globals = {
   'process.env': {
-    'NODE_ENV': JSON.stringify(config.env)
+    NODE_ENV: JSON.stringify(config.env)
   },
-  'NODE_ENV': config.env,
-  '__SIM__': config.env === 'sim',
-  '__DEV__': config.env === 'development',
-  '__PROD__': config.env === 'production',
-  '__CUSTOMIZE__': config.env === 'production',
-  '__HOST__': JSON.stringify(process.env.npm_config_host) || null,
-  '__TEST__': config.env === 'test',
-  '__COVERAGE__': !argv.watch && config.env === 'test',
-  '__BASENAME__': JSON.stringify(process.env.BASENAME || ''),
-  '__GLOB__': JSON.stringify(globApi.globSync(`${ROOT_PATH}/src/routes/*`))
-}
-
-// ========================================================
-// API /admin/api/porducts
-// 载入配置
-// ========================================================
-if (_.isArray(config.globals.__GLOB__) && config.globals.__GLOB__.length > 0) {
-  debug('__GLOB__:', _.toString([...config.globals.__GLOB__]))
-} else {
-  debug('__GLOB__:', config.globals.__GLOB__)
+  NODE_ENV: config.env,
+  __DEV__: config.env === 'development',
+  __PROD__: config.env === 'production',
+  __IP__: config.env === 'production',
+  __HOST__: JSON.stringify(process.env.npm_config_host) || null,
+  __TEST__: config.env === 'test'
 }
 
 // ------------------------------------
@@ -163,18 +124,21 @@ if (_.isArray(config.globals.__GLOB__) && config.globals.__GLOB__.length > 0) {
 // ------------------------------------
 const pkg = require('../package.json')
 
-config.compiler_vendors = config.compiler_vendors.filter((dep) => {
-  if (pkg.dependencies[dep])
-    return true
+config.compiler_vendors = config.compiler_vendors.filter(dep => {
+  if (pkg.dependencies[dep]) return true
 
-  debug(`Package "${dep}" was not found as an npm dependency in package.json; ` + `it won't be included in the webpack vendor bundle.
-       Consider removing it from compiler_vendors in ~/config/index.js`)
+  debug(
+    `Package "${dep}" was not found as an npm dependency in package.json; ` +
+      `it won't be included in the webpack vendor bundle.
+       Consider removing it from compiler_vendors in ~/config/index.js`
+  )
 })
 
 // ------------------------------------
 // Utilities
 // 实用程序
-// path.resolve 它可以接受多个参数，依次表示所要进入的路径，直到将最后一个参数转为绝对路径。如果根据参数无法得到绝对路径，就以当前所在路径作为基准。除了根目录，该方法的返回值都不带尾部的斜杠。
+// path.resolve 它可以接受多个参数，依次表示所要进入的路径，直到将最后一个参数转为绝对路径。
+// 如果根据参数无法得到绝对路径，就以当前所在路径作为基准。除了根目录，该方法的返回值都不带尾部的斜杠。
 // ------------------------------------
 function base() {
   const args = [config.path_base].concat([].slice.call(arguments))
@@ -197,7 +161,7 @@ debug(`NODE_ENV："${config.env}".`)
 const environments = require('./environments')
 const overrides = environments[config.env]
 
-// 覆盖配置
+// 覆盖配置
 if (overrides) {
   debug('找到覆盖，应用于默认配置（合并覆盖后的配置文件）。')
   Object.assign(config, overrides(config))

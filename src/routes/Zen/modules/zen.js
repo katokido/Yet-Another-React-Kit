@@ -74,7 +74,7 @@ const initialState = { // 数据结构
   fetching: false,
   text: []
 }
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
 
   return handler
