@@ -1,1 +1,4 @@
-export { Menus as default } from './components/Index'
+import reducer from '../Module'
+import Menus from './components/Index'
+
+export { Menus as default, reducer as permission }

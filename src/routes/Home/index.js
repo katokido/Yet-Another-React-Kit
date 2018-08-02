@@ -1,5 +1,9 @@
-import HomeView from './components/HomeView'
+import dynamicWrapper from '../../utils/dynamicWrapper'
 
-// Sync route definition
-// 定义 同步路由
-export default HomeView
+const routes = {
+  '/center': {
+    component: dynamicWrapper([], () => import(/* webpackChunkName: "home" */ './components/HomeView')),
+  }
+}
+
+export default routes

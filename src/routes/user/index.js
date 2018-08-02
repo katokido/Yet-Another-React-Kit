@@ -1,28 +1,18 @@
-import React from 'react'
+import dynamicWrapper from '../../utils/dynamicWrapper'
 
-import Bundle from '../../common/Bundle'
-import { injectReducer } from '../../store/reducers'
-import store from '../../store/createStore'
-import reducer from './Module'
-
-injectReducer(store, { key: 'cdkey', reducer })
-
-const routes = [
-  {
-    path: 'users',
-    name: 'Users',
-    main: (props) => <Bundle dataProps={props} load={() => import('./users')} />
+const routes = {
+  '/user/users': {
+    component: dynamicWrapper(['permission'], () => import(/* webpackChunkName: "users" */ './users')),
   },
-  {
-    path: 'roles',
-    name: 'Roles',
-    main: (props) => <Bundle dataProps={props} load={() => import('./roles')} />
+  '/user/roles': {
+    component: dynamicWrapper(['permission'], () => import(/* webpackChunkName: "roles" */ './roles')),
   },
-  {
-    path: 'menus',
-    name: 'Menus',
-    main: (props) => <Bundle dataProps={props} load={() => import('./menus')} />
+  '/user/menus': {
+    component: dynamicWrapper(['permission'], () => import(/* webpackChunkName: "menus" */ './menus')),
+    hideInBreadcrumb: false,
+    name: '菜单',
+    authority: 'menus',
   }
-]
+}
 
 export default routes

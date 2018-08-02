@@ -1,31 +1,48 @@
 import React, { Component } from 'react'
 import { Switch, Route } from 'react-router-dom'
-import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-// import { hot } from 'react-hot-loader'
+import PropTypes from 'prop-types'
+import { hot } from 'react-hot-loader'
 
 import '../static/index.less'
-import Login from '../containers/Login'
-import BaseLayout from '../layouts/BaseLayout'
-import AuthRoute from '../common/AuthRoute'
+// import store from '../store/createStore'
+import Authorized from '../utils/Authorized'
+import { getRouterData } from '../common/router'
 
+const { AuthorizedRoute } = Authorized
+const routerData = getRouterData()
+const BaseLayout = routerData['/'].component
+const UserLayout = routerData['/account'].component
+
+const mapDispatchToProps = {}
+
+const mapStateToProps = (state) => ({
+  login: state.login
+})
+
+@connect(mapStateToProps, mapDispatchToProps)
 class App extends Component {
   static propTypes = {
-    logged: PropTypes.bool
+    login: PropTypes.object
   }
 
   render() {
-    const { logged } = this.props
+    console.log(this.props)
+    // const { login } = this.props
+    // const authority = []
+
     return (
       <Switch>
-        <Route exact path='/login' component={Login} />
-        <AuthRoute isAuthenticated={logged} component={BaseLayout} />
+        <Route path="/account" component={props => <UserLayout {...props} routerData={routerData} />} />
+        <AuthorizedRoute
+          path="/"
+          render={props => <BaseLayout {...props} routerData={routerData} />}
+          authority={['admin']}
+          redirectPath="/account/login"
+        />
       </Switch>
     )
   }
 }
-const mapStateToProps = state => ({
-  logged: state.fakeAuth
-})
 
-export default connect(mapStateToProps)(App)
+export default hot(module)(App)

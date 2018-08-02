@@ -6,7 +6,7 @@ const ip = require('ip')
 
 debug('创建默认配置')
 debug('IP：', ip.address())
-debug('PORT：', process.env.PORT || 3050)
+debug('PORT：', process.env.PORT || 3053)
 debug('HOST：', process.env.npm_config_host || '非compile')
 
 // ========================================================
@@ -41,7 +41,7 @@ const config = {
   // const PORT = process.env.npm_package_config_port
   // ----------------------------------
   server_host: ip.address(), // ip.address() use string 'localhost' to prevent exposure on local network
-  server_port: process.env.PORT || 3050,
+  server_port: process.env.PORT || 3053,
 
   // ----------------------------------
   // Compiler Configuration
@@ -88,6 +88,24 @@ const config = {
     chunkModules: false,
     colors: true
   },
+  vendors: {
+    react: [
+      'react',
+      'prop-types'
+    ],
+    router: [
+      'react-router-dom',
+      'history'
+    ],
+    redux: [
+      'redux',
+      'react-redux'
+    ],
+    vendor: [
+      'lodash',
+      'axios'
+    ]
+  },
   compiler_vendors: [
     'history',
     'lodash',
@@ -119,22 +137,6 @@ config.globals = {
 }
 
 // ------------------------------------
-// Validate Vendor Dependencies
-// 验证供应商依赖关系
-// ------------------------------------
-const pkg = require('../package.json')
-
-config.compiler_vendors = config.compiler_vendors.filter(dep => {
-  if (pkg.dependencies[dep]) return true
-
-  debug(
-    `Package "${dep}" was not found as an npm dependency in package.json; ` +
-      `it won't be included in the webpack vendor bundle.
-       Consider removing it from compiler_vendors in ~/config/index.js`
-  )
-})
-
-// ------------------------------------
 // Utilities
 // 实用程序
 // path.resolve 它可以接受多个参数，依次表示所要进入的路径，直到将最后一个参数转为绝对路径。
@@ -151,24 +153,6 @@ config.utils_paths = {
   base: base,
   client: base.bind(null, config.dir_client),
   dist: base.bind(null, config.dir_dist)
-}
-
-// ========================================================
-// Environment Configuration
-// 环境配置
-// ========================================================
-debug(`NODE_ENV："${config.env}".`)
-const environments = require('./environments')
-const overrides = environments[config.env]
-
-// 覆盖配置
-if (overrides) {
-  debug('找到覆盖，应用于默认配置（合并覆盖后的配置文件）。')
-  Object.assign(config, overrides(config))
-  debug(`compiler_public_path：${config.compiler_public_path}`)
-  debug(`compiler_api：${config.compiler_api}`)
-} else {
-  debug('未找到环境覆盖，将使用默认值.')
 }
 
 module.exports = config

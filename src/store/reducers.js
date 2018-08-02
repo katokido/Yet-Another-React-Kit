@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux'
 import location from './location'
-import fakeAuth from './fakeAuth'
+import login from './login'
+// import fakeAuth from './fakeAuth'
 
 /**
 |--------------------------------------------------
@@ -8,9 +9,10 @@ import fakeAuth from './fakeAuth'
 |--------------------------------------------------
 */
 // 根Reducer
-export const makeRootReducer = (asyncReducers) => combineReducers({
+export const makeRootReducer = (asyncReducers = {}) => combineReducers({
   location,
-  fakeAuth,
+  login,
+  // fakeAuth,
   ...asyncReducers
 })
 
@@ -25,7 +27,7 @@ export const makeRootReducer = (asyncReducers) => combineReducers({
 */
 export const injectReducer = (store, { key, reducer }) => {
   if (Object.hasOwnProperty.call(store.asyncReducers, key)) {
-    return console.log(`Error: ${key} is already exist`)
+    return
   }
 
   store.asyncReducers[key] = reducer

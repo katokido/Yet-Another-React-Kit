@@ -1,14 +1,12 @@
 // 配置后端API地址前缀
 const PREFIX_API = '/admin/api/'
 const HOST = {
-  LOCAL: 'http://192.168.2.49:8091',
-  REMOTE: 'http://192.168.2.49:8091',
+  LOCAL: 'http://10.0.5.42:8050',
   RELEASE: `http://${__HOST__}`
 }
 
 const PLATFORM = {
   LOCAL: `${HOST.LOCAL}${PREFIX_API}`,
-  REMOTE: `${HOST.REMOTE}${PREFIX_API}`,
   RELEASE: `${HOST.RELEASE}${PREFIX_API}`
 }
 

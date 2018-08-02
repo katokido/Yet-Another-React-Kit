@@ -1,9 +1,9 @@
-import { injectReducer } from '../../store/reducers'
-import store from '../../store/createStore'
+import dynamicWrapper from '../../utils/dynamicWrapper'
 
-import reducer from './modules/zen'
-import Zen from './containers/ZenContainer'
+const routes = {
+  '/zen': {
+    component: dynamicWrapper(['zen'], () => import(/* webpackChunkName: "zen" */ './zens'))
+  }
+}
 
-injectReducer(store, { key: 'zen', reducer })
-
-export default Zen
+export default routes

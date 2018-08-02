@@ -1,9 +1,9 @@
-import { injectReducer } from '../../store/reducers'
-import store from '../../store/createStore'
+import dynamicWrapper from '../../utils/dynamicWrapper'
 
-import Blog from './containers/BlogContainer'
-import reducer from './modules/Module'
+const routes = {
+  '/blog': {
+    component: dynamicWrapper(['blog'], () => import(/* webpackChunkName: "blog" */ './blogs')),
+  }
+}
 
-injectReducer(store, { key: 'blog', reducer })
-
-export default Blog
+export default routes

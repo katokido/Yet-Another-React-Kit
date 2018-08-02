@@ -1,6 +1,6 @@
 import { applyMiddleware, compose, createStore } from 'redux'
 import thunk from 'redux-thunk'
-import logger from 'redux-logger'
+// import logger from 'redux-logger'
 import promise from 'redux-promise'
 
 import browserHistory from './history'
@@ -15,7 +15,8 @@ const storeCreator = (initialState = {}) => {
   |--------------------------------------------------
   */
   const middleware = __DEV__
-        ? [thunk, promise, logger]
+        // ? [thunk, promise, logger]
+        ? [thunk, promise]
         : [thunk, promise]
 
   /**

@@ -1,4 +1,5 @@
 const webpack = require('webpack')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const RemoveSourceWebpackPlugin = require('remove-source-webpack-plugin')
@@ -13,14 +14,8 @@ const devMode = config.env !== 'production'
 const paths = config.utils_paths
 const __DEV__ = config.globals.__DEV__
 const __PROD__ = config.globals.__PROD__
-const __TEST__ = config.globals.__TEST__
-const __CUSTOMIZE__ = config.globals.__CUSTOMIZE__
-const __HOST__ = config.globals.__HOST__
 
 debug('创建webpack.config配置.')
-debug('__CUSTOMIZE__:', __CUSTOMIZE__)
-debug('__HOST__:', __HOST__)
-
 
 let plugins = []
 let optimization = {}
@@ -55,12 +50,9 @@ if (__DEV__) {
     ],
     splitChunks: {
       chunks: 'all',
-      filename: 'js/vendor.[hash].js'
+      // filename: 'js/vendor.[hash].js'
     }
   }
-}
-
-if (!__TEST__) {
 }
 
 const APP_ENTRY = paths.client('index.js')
@@ -69,13 +61,16 @@ const configures = {
   mode: config.env,
   target: 'web',
   entry: {
-    app: ['react-hot-loader/patch', APP_ENTRY],
-    vendor: config.compiler_vendors
+    app: devMode ? ['webpack-hot-middleware/client', APP_ENTRY] : APP_ENTRY,
+    vendor: config.vendors.vendor,
+    react: config.vendors.react,
+    router: config.vendors.router,
+    redux: config.vendors.router
   },
   output: {
+    path: paths.dist(),
     filename: `[name].[${config.compiler_hash_type}].js`,
     chunkFilename: '[name].[chunkhash].js',
-    path: paths.dist(),
     publicPath: config.compiler_public_path
   },
   resolve: {
@@ -100,20 +95,31 @@ const configures = {
         loader: 'babel-loader',
         options: config.compiler_babel
       },
-      { test: /\.ts$/, use: 'ts-loader' },
       {
         test: /\.css$/,
         use: [
           devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-          'css-loader',
-          'less-loader'
+          {
+            loader: 'css-loader',
+            // options: {
+            //   modules: true,
+            //   localIdentName: '[name]__[local]__[hash:base64:5]'
+            // }
+          },
         ]
       },
       {
         test: /\.less$/,
+        // exclude: /node_modules/,
         use: [
           'style-loader',
-          'css-loader',
+          {
+            loader: 'css-loader',
+            // options: {
+            //   modules: true,
+            //   localIdentName: '[name]__[local]__[hash:base64:5]'
+            // }
+          },
           {
             loader: 'less-loader',
             options: {
@@ -152,10 +158,11 @@ const configures = {
   optimization: {
     ...optimization
   },
-  devtool: config.compiler_devtool,
+  devtool: devMode ? 'eval-source-map' : config.compiler_devtool,
   plugins: [
     ...plugins,
     new webpack.DefinePlugin(config.globals),
+    new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
       template: paths.client('index.html'),
       inlineSource: 'manifest.[a-z0-9]{8}.js$',

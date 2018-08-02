@@ -75,9 +75,9 @@ export default class HomeView extends Component {
 
   render() {
     return (
-      <div className='HomeView'>
-        <h4>Welcome!</h4>
-        <img alt='This is a duck, because Redux!' className='duck' src={DuckImage} />
+      <div className="HomeView">
+        <h4>Welcome to Hello React kit project!</h4>
+        <img alt="This is a duck, because Redux!" className="duck" src={DuckImage} />
         <MyComponent />
       </div>
     )

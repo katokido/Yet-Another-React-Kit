@@ -1,9 +1,9 @@
-import { injectReducer } from '../../store/reducers'
-import store from '../../store/createStore'
+import dynamicWrapper from '../../utils/dynamicWrapper'
 
-import Counter from './containers/CounterContainer'
-import reducer from './modules/counter'
+const routes = {
+  '/counter': {
+    component: dynamicWrapper(['counter'], () => import(/* webpackChunkName: "counter" */ './counters')),
+  }
+}
 
-injectReducer(store, { key: 'counter', reducer })
-
-export default Counter
+export default routes
